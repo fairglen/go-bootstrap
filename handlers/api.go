@@ -16,10 +16,9 @@ func NewAPI() *API {
 	api := &API{
 		Router: mux.NewRouter(),
 	}
-	api.Router.HandleFunc("/greeting/{name}/", api.Greeting).Methods(http.MethodGet)
-	api.Router.HandleFunc("/",func(rw http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(rw, "Upsi")
-	} )
+	api.Router.HandleFunc("/greeting", api.Greeting).Methods(http.MethodGet)
+	api.Router.HandleFunc("/greeting/{name}", api.Greeting).Methods(http.MethodGet)
+
 	return api
 }
 
