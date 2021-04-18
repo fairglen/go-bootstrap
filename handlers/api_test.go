@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -37,13 +38,13 @@ func TestAPIHasRoutes(t *testing.T) {
 	}{
 		{
 			name:  "has greeting route",
-			route: route{path: "/greeting", methods: []string{http.MethodGet}},
+			route: route{path: "/greeting/{name}/", methods: []string{http.MethodGet}},
 		},
 	}
 	for _, scenario := range scenarios {
 		t.Run(scenario.name, func(t *testing.T) {
-			ch := NewAPI()
-			require.Contains(t, getRoutes(t, ch.Router), scenario.route)
+			api := NewAPI()
+			require.Contains(t, getRoutes(t, api.Router), scenario.route)
 		})
 	}
 }
@@ -82,13 +83,14 @@ func TestGreeting(t *testing.T) {
 	}
 	for _, scenario := range scenarios {
 		t.Run(scenario.name, func(*testing.T) {
-			rr := httptest.NewRecorder()
+			w := httptest.NewRecorder()
 
-			h := http.HandlerFunc(NewAPI().Greeting)
-			h.ServeHTTP(rr, scenario.request())
+			api := NewAPI()
+			fmt.Printf("Routes: %v", getRoutes(t, api.Router))
+			api.Router.ServeHTTP(w, scenario.request())
 
-			require.Equal(t, scenario.expStatus, rr.Code)
-			require.Equal(t, scenario.expResponse, rr.Body.String())
+			require.Equal(t, scenario.expStatus, w.Code)
+			require.Equal(t, scenario.expResponse, w.Body.String())
 		})
 	}
 }

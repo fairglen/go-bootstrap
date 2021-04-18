@@ -1,27 +1,29 @@
 package internal
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 )
 
 // Racer returns the fastest url
-func Racer(urls ... string) (fasterURL string) {
-	var fastestResponseTime time.Duration
-	for i, url := range urls {
-		currResponseTime := measureResponseTime(url)
-		if (currResponseTime < fastestResponseTime || i == 0){
-			fasterURL = url
-			fastestResponseTime = currResponseTime
-		}
-
+func Racer(urlA, urlB string, timeout time.Duration) (string, error) {
+	select {
+		case <- ping(urlA):
+			return urlA, nil
+		case <- ping(urlB):
+			return urlB, nil
+		case <- time.After(timeout):
+			return "", fmt.Errorf("timed out after waiting for %s and %s to load", urlA, urlB)
 	}
-	return fasterURL
 }
 
-
-func measureResponseTime(url string) time.Duration{
-	start := time.Now()
-	http.Get(url)
-	return time.Since(start)
+func ping(url string) chan bool{
+	ch:= make(chan bool)
+	go func() {
+		http.Get(url)
+		ch <- true
+	}()
+	return ch
 }
+

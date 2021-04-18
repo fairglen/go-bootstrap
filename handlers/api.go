@@ -17,6 +17,9 @@ func NewAPI() *API {
 		Router: mux.NewRouter(),
 	}
 	api.Router.HandleFunc("/greeting/{name}/", api.Greeting).Methods(http.MethodGet)
+	api.Router.HandleFunc("/",func(rw http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(rw, "Upsi")
+	} )
 	return api
 }
 
@@ -24,9 +27,7 @@ func NewAPI() *API {
 func (api *API) Greeting(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	name := params["name"]
-
-	fmt.Printf("name: %s\n", name)
-
+	fmt.Printf("Name: %s\n", name)
 	greeting := "Hello World!"
 
 	if len(name) > 0 {
